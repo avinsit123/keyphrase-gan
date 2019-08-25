@@ -5,7 +5,7 @@ Our Implementation is built on the starter code from <a href = "https://github.c
 
 ## Dependencies 
 
-## Running GAN model
+## Adverserial Training
 First start by creating a virtual environment and install all required dependencies.
 ```terminal
 pip install virtualenv
@@ -22,7 +22,7 @@ python3 preprocess.py -data_dir data/kp20k_sorted -remove_eos -include_peos
 
 If you cant preprocess and want to temporarily run the repository , to can download the datasets with 10000 examples [here](https://drive.google.com/drive/folders/1YIJOAAR8rK8oiAfPK-5aJwgwlmw0uie_?usp=sharing) .
 
-## Training the MLE model 
+### Training the MLE model 
 The first step in GAN training involves training the MLE model as a baseline using maximum likelihood loss . The paper has used CatSeq model as a baseline . In order to train Catseq model without copy attention run
 ```terminal
 python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 25 -train_ml -one2many -one2many_mode 1 -batch_size 24
@@ -34,3 +34,6 @@ python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path ex
 
 Note Down the Checkpoints Location while training .
 
+### Training the Discriminator 
+
+Now that the baseline MLE model is trained we need to train the Discriminator using the MLE model as Generator. The Discriminator is a hierarchal blstm which uses attention mechanism to calculate its 
