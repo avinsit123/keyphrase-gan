@@ -50,3 +50,14 @@ As Discriminator Gradients cannot directly backpropagate towards the Generator b
 ```terminal
  python GAN_Training.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 20 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [model_path]  -train_rl   -Discriminator_model_path [Discriminator_path]
 ```
+
+### Training Options
+```
+-D_hidden_dim : set hidden dimensions of Discriminator LSTM
+-D_layers : set no.of layers in each LSTM in the Discriminator
+-D_embedding_dim : No.of embedding dimensions to be used in the Discriminator 
+-pretrained_Discriminator : supply a pretrained Discriminator in 2nd or later iterations of GAN Training.
+-Discriminator_model_path : path to pretrained Discriminators
+-learning_rate : Sets learning rate for Discriminator when used with -train_discriminator 
+-learning_rate_rl : Sets learning rate for Generator during RL Training
+```
