@@ -39,7 +39,7 @@ Note Down the Checkpoints Location while training .
 Now that the baseline MLE model is trained we need to train the Discriminator using the MLE model as Generator. The Discriminator is a hierarchal blstm which uses attention mechanism to calculate embeddings for all the keyphrases.
 
 ```terminal
-python Terminal.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 5 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [MLE_model_path] -train_discriminator 
+python GAN_Training.py  -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 5 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [MLE_model_path] -train_discriminator 
 ```
 
 All additional flags have been detailed at the end of the repository.
@@ -48,5 +48,5 @@ All additional flags have been detailed at the end of the repository.
 As Discriminator Gradients cannot directly backpropagate towards the Generator because of the Discrete Nature of text the Generator is trained by means of policy gradient reinforcement learning techniques . In order to train using RL run
 
 ```terminal
- python Terminal.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 20 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [model_path]  -train_rl   -Discriminator_model_path [Discriminator_path]
+ python GAN_Training.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 20 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [model_path]  -train_rl   -Discriminator_model_path [Discriminator_path]
 ```
