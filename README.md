@@ -5,3 +5,19 @@ Our Implementation is built on the starter code from <a href = "https://github.c
 
 ## Dependencies 
 
+## Running GAN model
+First start by creating a virtual environment and install all required dependencies.
+```terminal
+pip install virtualenv
+virtualenv mypython
+pip install -r requirements.txt
+source mypython/bin/activate
+```
+
+### Data 
+The GAN model is trained on close to 500000 examples of the kp20k dataset and evaluated on the Inspec (Huth) , Krapivin , NUS , Semeval Datasets . After Downloading this repo , create a `Data` folder within it . Download all the required datasets from [this](https://drive.google.com/open?id=1DbXV1mZXm_o9bgfwPV9PV0ZPcNo1cnLp) and store it in the `Data` folder . The Folders with `_sorted` suffix contain present keyphrases which are sorted in the order of there occurence , and the ones with `_seperated` suffix contains present and absent keyphrases seperated by a `<peos>` token . In order to preprocess the kp20k dataset , run 
+```terminal
+python3 preprocess.py -data_dir data/kp20k_sorted -remove_eos -include_peos
+```
+
+If you cant preprocess and want to temporarily run the repository , to can download the datasets with 10000 examples [here](https://drive.google.com/drive/folders/1YIJOAAR8rK8oiAfPK-5aJwgwlmw0uie_?usp=sharing) .
