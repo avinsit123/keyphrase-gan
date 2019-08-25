@@ -25,15 +25,28 @@ If you cant preprocess and want to temporarily run the repository , to can downl
 ### Training the MLE model 
 The first step in GAN training involves training the MLE model as a baseline using maximum likelihood loss . The paper has used CatSeq model as a baseline . In order to train Catseq model without copy attention run
 ```terminal
-python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 25 -train_ml -one2many -one2many_mode 1 -batch_size 24
+python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 25 -train_ml -one2many -one2many_mode 1 -batch_size 32
 ```
 or with copy attention run
 ```terminal
-python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 25 -train_ml -one2many -one2many_mode 1 -batch_size 24 -copy_attention
+python3 train.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 25 -train_ml -one2many -one2many_mode 1 -batch_size 32 -copy_attention
 ```
 
 Note Down the Checkpoints Location while training .
 
 ### Training the Discriminator 
 
-Now that the baseline MLE model is trained we need to train the Discriminator using the MLE model as Generator. The Discriminator is a hierarchal blstm which uses attention mechanism to calculate its 
+Now that the baseline MLE model is trained we need to train the Discriminator using the MLE model as Generator. The Discriminator is a hierarchal blstm which uses attention mechanism to calculate embeddings for all the keyphrases.
+
+```terminal
+python Terminal.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 5 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [MLE_model_path] -train_discriminator 
+```
+
+All additional flags have been detailed at the end of the repository.
+
+### Reinforcement Learning 
+As Discriminator Gradients cannot directly backpropagate towards the Generator because of the Discrete Nature of text the Generator is trained by means of policy gradient reinforcement learning techniques . In order to train using RL run
+
+```terminal
+ python Terminal.py -data data/kp20k_sorted/ -vocab data/kp20k_sorted/ -exp_path exp/%s.%s -exp kp20k -epochs 20 -copy_attention -train_ml -one2many -one2many_mode 1 -batch_size 32 -model [model_path]  -train_rl   -Discriminator_model_path [Discriminator_path]
+```
