@@ -5,7 +5,7 @@ Our Implementation is built on the starter code from <a href = "https://github.c
 
 ## Dependencies 
 
-## Adverserial Training
+## Adversarial Training
 First start by creating a virtual environment and install all required dependencies.
 ```terminal
 pip install virtualenv
