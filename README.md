@@ -5,6 +5,7 @@ Our Implementation is built on the starter code from <a href = "https://github.c
 
 ## Dependencies 
 
+
 ## Adversarial Training
 First start by creating a virtual environment and install all required dependencies.
 ```terminal
@@ -60,4 +61,15 @@ As Discriminator Gradients cannot directly backpropagate towards the Generator b
 -Discriminator_model_path : path to pretrained Discriminators
 -learning_rate : Sets learning rate for Discriminator when used with -train_discriminator 
 -learning_rate_rl : Sets learning rate for Generator during RL Training
+```
+cite our paper as 
+```
+@misc{swaminathan2019keyphrase,
+    title={Keyphrase Generation for Scientific Articles using GANs},
+    author={Avinash Swaminathan and Raj Kuwar Gupta and Haimin Zhang and Debanjan Mahata and Rakesh Gosangi and Rajiv Ratn Shah},
+    year={2019},
+    eprint={1909.12229},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL}
+}
 ```
