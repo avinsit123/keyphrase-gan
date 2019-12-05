@@ -137,7 +137,10 @@ def model_opts(parser):
                         help='Only effective in separate_present_absent. 0: no goal vector; 1: goal vector act as an extra input to the decoder; 2: goal vector act as an extra input to p_gen')
     parser.add_argument('-title_guided', action="store_true", default=False,
                         help='whether to use title-guided encoder')
-
+    parser.add_argument('-single_reward', action="store_true",
+                        help='RL for single rewards')
+    parser.add_argument('-multiple_rewards', action="store_true",
+                        help='RL for multiple rewards')    
     
     # parser.add_argument('-context_gate', type=str, default=None,
     #                     choices=['source', 'target', 'both'],
@@ -164,7 +167,7 @@ def dis_opts(parser):
                         help=' learning rate ')
     parser.add_argument('-rl_learning_rate' , type = float ,default = 0.00005 ,help = "RL Learning Rate")
     
-    
+
     
      
 def vocab_opts(parser):

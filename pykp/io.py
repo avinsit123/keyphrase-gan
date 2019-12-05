@@ -45,7 +45,6 @@ class KeyphraseDataset(torch.utils.data.Dataset):
             filtered_example = {}
             for k in keys:
                 filtered_example[k] = e[k]
-            print(e['src_str'])
             if 'oov_list' in filtered_example:
                 filtered_example['oov_number'] = len(filtered_example['oov_list'])
                 '''
