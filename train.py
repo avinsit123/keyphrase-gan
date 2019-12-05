@@ -155,6 +155,7 @@ def main(opt):
     try:
         start_time = time.time()
         #print(" the opt is",opt)
+       
         train_data_loader, valid_data_loader, word2idx, idx2word, vocab = load_data_and_vocab(opt, load_train=True)
         load_data_time = time_since(start_time)
         logging.info('Time for loading the data: %.1f' % load_data_time)

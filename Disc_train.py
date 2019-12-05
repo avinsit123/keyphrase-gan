@@ -178,9 +178,11 @@ def main(opt):
     hidden_dim = opt.D_hidden_dim
     embedding_dim = opt.D_embedding_dim 
     n_layers = opt.D_layers
-    D_model = Discriminator(opt.vocab_size,embedding_dim,hidden_dim,n_layers,opt.word2idx[pykp.io.PAD_WORD])
+    if torch.cuda.is_available():
+        D_model = Discriminator(opt.vocab_size,embedding_dim,hidden_dim,n_layers,opt.word2idx[pykp.io.PAD_WORD],opt.gpuid)
+    else:
+        D_model = Discriminator(opt.vocab_size,embedding_dim,hidden_dim,n_layers,opt.word2idx[pykp.io.PAD_WORD],"cpu")
     print("The Discriminator Description is ",D_model)
-    
     if opt.pretrained_Discriminator :
         if torch.cuda.is_available() :
             D_model.load_state_dict(torch.load(opt.Discriminator_model_path))

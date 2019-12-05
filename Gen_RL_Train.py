@@ -129,17 +129,29 @@ def train_one_batch(D_model,one2many_batch, generator, opt,perturb_std):
         h_kph_f = F.pad(h_kph_f,p2d)
         abstract_f = torch.cat((abstract_f,h_abstract_f),dim=0)
         kph_f = torch.cat((kph_f,h_kph_f),dim=0)
-        
-    len_abstract = abstract_f.size(1)
-    total_len = log_selected_token_dist.size(1)
-    log_selected_token_total_dist = log_selected_token_total_dist.reshape(-1,total_len)
-    all_rewards = D_model.calculate_rewards(abstract_f,kph_f,len_abstract,len_list_f,pred_str_new2dlist,total_len)  
-    all_rewards = all_rewards.reshape(-1,total_len)
-    calculated_rewards = log_selected_token_total_dist * all_rewards.detach()
-    individual_rewards = torch.sum(calculated_rewards,dim=1)
-    J = torch.mean(individual_rewards)
-    return J
+    
+    if opt.multiple_rewards:    
+        len_abstract = abstract_f.size(1)
+        total_len = log_selected_token_dist.size(1)
+        log_selected_token_total_dist = log_selected_token_total_dist.reshape(-1,total_len)
+        all_rewards = D_model.calculate_rewards(abstract_f,kph_f,len_abstract,len_list_f,pred_str_new2dlist,total_len)  
+        all_rewards = all_rewards.reshape(-1,total_len)
+        calculated_rewards = log_selected_token_total_dist * all_rewards.detach()
+        individual_rewards = torch.sum(calculated_rewards,dim=1)
+        J = torch.mean(individual_rewards)
+        return J
+    
+    elif opt.single_rewards:
+       len_abstract = abstract_f.size(1)
+       total_len = log_selected_token_dist.size(1)
+       log_selected_token_total_dist = log_selected_token_total_dist.reshape(-1,total_len)
+       all_rewards = D_model.calculate_rewards(abstract_f,kph_f,len_abstract,len_list_f,pred_str_new2dlist,total_len)  
+       calculated_rewards =  all_rewards.detach() * log_selected_token_total_dist 
+       individual_rewards = torch.sum(calculated_rewards,dim=1)
+       J = torch.mean(individual_rewards)
+       return J
 
+       
 def main(opt):
     #print("agsnf efnghrrqthg")
     clip = 5
@@ -183,9 +195,6 @@ def main(opt):
     n_layers = opt.D_layers
     D_model = Discriminator(opt.vocab_size,embedding_dim,hidden_dim,n_layers,opt.word2idx[pykp.io.PAD_WORD])
     print("The Discriminator Description is ",D_model)
-
-    
-   
      
     PG_optimizer = torch.optim.Adagrad(model.parameters(),opt.learning_rate_rl)
     if torch.cuda.is_available() :
@@ -193,8 +202,8 @@ def main(opt):
         D_model = D_model.to(opt.gpuid)
     else:
         D_model.load_state_dict(torch.load(opt.Discriminator_model_path,map_location="cpu"))
-    
-   # D_model.load_state_dict(torch.load("Discriminator_checkpts/D_model_combined1.pth.tar"))
+  
+    # D_model.load_state_dict(torch.load("Discriminator_checkpts/D_model_combined1.pth.tar"))
     total_epochs = opt.epochs
     for epoch in range(total_epochs):
         

@@ -40,7 +40,7 @@ class S_RNN(nn.Module):
         return x,hidden
                   
 class Discriminator(S_RNN):
-    def __init__(self,vocab_size,embedding_dim,hidden_dim,n_layers,pad_idx,bidirectional=False):
+    def __init__(self,vocab_size,embedding_dim,hidden_dim,n_layers,pad_idx,devices,bidirectional=False):
         super().__init__(embedding_dim,hidden_dim,n_layers,bidirectional=False)
 
         self.pad_idx = pad_idx
@@ -49,7 +49,7 @@ class Discriminator(S_RNN):
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
         self.bidirectional = bidirectional
-        
+        self.devices = devices
         self.RNN1 = S_RNN(embedding_dim,hidden_dim,n_layers,True)  ### Abstract RNN
         self.RNN2 = S_RNN(embedding_dim,hidden_dim,n_layers,True)  ### Summary RNN
         self.embedding = nn.Embedding(vocab_size,embedding_dim)
@@ -68,14 +68,14 @@ class Discriminator(S_RNN):
         padded = [batch + [pad_id] * (max_rows - len(batch)) for batch in target]
         padded = torch.tensor([row + [pad_id] * (max_cols - len(row)) for row in padded])
         if torch.cuda.is_available():
-            padded = padded.to(devices)
+            padded = padded.to(self.devices)
         return padded
         
     def transform_src(self,src,total_kphs):
         src = torch.Tensor(np.tile(src.cpu().numpy(),total_kphs))
         src = src.reshape(total_kphs,-1)
         if torch.cuda.is_available():
-            src = src.to(devices)
+            src = src.to(self.devices)
         return src        
         
     def forward(self,src,kph):
@@ -113,11 +113,11 @@ class Discriminator(S_RNN):
         if target_type==1:
             results = torch.ones(total_len)*0.9
             if torch.cuda.is_available():
-                results = results.to(devices)
+                results = results.to(self.devices)
         else:
             results = torch.zeros(total_len)
             if torch.cuda.is_available():
-                results = results.to(devices)
+                results = results.to(self.devices)
         criterion = nn.BCEWithLogitsLoss()
         avg_outputs = torch.mean(self.sigmoid(output))
         loss = criterion(output,results)
@@ -130,7 +130,7 @@ class Discriminator(S_RNN):
         return outputs
     
     def calculate_context_rewards(self,abstract_t,kph_t,target_type,len_list):
-        total_rewards = torch.Tensor([]).to(devices)
+        total_rewards = torch.Tensor([]).to(self.devices)
         total_rewards = total_rewards.unsqueeze(0)
         x = self.attention(abstract_t)
         temp = kph_t.permute(0,2,1)
@@ -162,6 +162,8 @@ class Discriminator(S_RNN):
         output = torch.cat((x,kph_t),dim=2)
         output = self.Compress(output)
         output = output.squeeze(2)
+        abstract_t = torch.mean(abstract_t,dim=1)
+        abstract_t = abstract_t.unsqueeze(1)
         concat_output = torch.cat((abstract_t,kph_t),dim=1) 
         concat_output = concat_output.permute(1,0,2)
         x,hidden = self.MegaRNN(concat_output)
@@ -172,11 +174,11 @@ class Discriminator(S_RNN):
         if target_type==1:
             results = torch.ones(total_len)*0.9
             if torch.cuda.is_available():
-                results = results.to(devices)
+                results = results.to(self.devices)
         else:
             results = torch.zeros(total_len)
             if torch.cuda.is_available():
-                results = results.to(devices)
+                results = results.to(self.devices)
         criterion = nn.BCEWithLogitsLoss()
         avg_outputs = torch.mean(self.sigmoid(output))
         outputs = self.sigmoid(output)
@@ -189,13 +191,14 @@ class Discriminator(S_RNN):
          x = torch.Tensor([])
          rewards_shape = rewards.repeat(max_len).reshape(-1,rewards.size(0)).t()
          x= torch.Tensor([])
-         x = x.to(devices)
+         x = x.to(self.devices)
          for i,keyphrase in enumerate(rewards_shape):
              x = torch.cat((x,keyphrase[:lengths[i]]))
          x = F.pad(input=x,pad=(0,total_len-x.size(0)),mode='constant',value=0)
          return x    
 
     def calculate_rewards(self,abstract_t,kph_t,start_len,len_list,pred_str_list,total_len,gamma = 0.99):
+        start_len = 1
         x = self.attention(abstract_t)
         temp = kph_t.permute(0,2,1)
         x = torch.bmm(x,temp)
@@ -204,20 +207,39 @@ class Discriminator(S_RNN):
         output = torch.cat((x,kph_t),dim=2)
         output = self.Compress(output)
         output = output.squeeze(2)
+        abstract_t = torch.mean(abstract_t,dim=1)
+        abstract_t = abstract_t.unsqueeze(1)
         concat_output = torch.cat((abstract_t,kph_t),dim=1) 
         concat_output = concat_output.permute(1,0,2)
         x,hidden = self.MegaRNN(concat_output)
         output = self.Linear(x)
         output = output.squeeze(2).t()
         avg_outputs = self.sigmoid(output)
-        reward_outputs = torch.Tensor([]).to(devices)
+        reward_outputs = torch.Tensor([]).to(self.devices)
         for i,len_i in enumerate(len_list):
-            discounts = torch.Tensor([pow(gamma,i) for i in reversed(range(len_i))]).to(devices)
-            avg_outputs[i,start_len:start_len+len_i] = avg_outputs[i,start_len:start_len+len_i] * discounts
+            avg_outputs[i,start_len:start_len+len_i] = avg_outputs[i,start_len:start_len+len_i] 
             batch_rewards = self.Catter(pred_str_list[i],avg_outputs[i,start_len:start_len+len_i],total_len)
             reward_outputs = torch.cat((reward_outputs,batch_rewards))
         return reward_outputs
-
+    
+    def calculate_single_rewards(self,abstract_t,kph_t,start_len,len_list,pred_str_list,total_len,gamma = 0.99):
+        x = self.attention(abstract_t)
+        temp = kph_t.permute(0,2,1)
+        x = torch.bmm(x,temp)
+        x = x.permute(0,2,1)
+        x = torch.bmm(x,abstract_t)
+        output = torch.cat((x,kph_t),dim=2)
+        output = self.Compress(output)
+        output = output.squeeze(2)
+        abstract_t = torch.mean(abstract_t,dim=1)
+        abstract_t = abstract_t.unsqueeze(1)
+        concat_output = torch.cat((abstract_t,kph_t),dim=1) 
+        concat_output = concat_output.permute(1,0,2)
+        x,hidden = self.MegaRNN(concat_output)
+        x = x[-1,:,:]
+        output = self.sigmoid(self.Linear(x))
+        return output 
+    
        
         
 #D_model = Discriminator(50002,200,150,2,0) 
