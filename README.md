@@ -1,5 +1,5 @@
 # Keyphrase-GAN
-This repository contains the code for the paper <a href="https://arxiv.org/abs/1909.12229">Keyphrase Generation for Scientific Articles using GANs</a>.We have built a novel adversarial method to improve upon the generation of keyphrases using supervised approaches.Our Implementation is built on the starter code from <a href = "https://github.com/kenchan0226/keyphrase-generation-rl"> keyphrase-generation-rl </a> and <a href = "https://github.com/memray/seq2seq-keyphrase-pytorch"> seq2seq-keyphrase-pytorch </a> . Pls comment any issues in the issues section.
+This repository contains the code for the paper <a href="https://aaai.org/ojs/index.php/AAAI/article/view/7238">Keyphrase Generation for Scientific Articles using GANs</a>.We have built a novel adversarial method to improve upon the generation of keyphrases using supervised approaches.Our Implementation is built on the starter code from <a href = "https://github.com/kenchan0226/keyphrase-generation-rl"> keyphrase-generation-rl </a> and <a href = "https://github.com/memray/seq2seq-keyphrase-pytorch"> seq2seq-keyphrase-pytorch </a> . Pls comment any issues in the issues section.
 
 ![Alt text](Images/Discriminator.jpg?raw=true "Schematic of Proposed Discriminator")
 ## Dependencies 
@@ -64,12 +64,10 @@ As Discriminator Gradients cannot directly backpropagate towards the Generator b
 ```
 cite our paper as 
 ```
-@misc{swaminathan2019keyphrase,
-    title={Keyphrase Generation for Scientific Articles using GANs},
-    author={Avinash Swaminathan and Raj Kuwar Gupta and Haimin Zhang and Debanjan Mahata and Rakesh Gosangi and Rajiv Ratn Shah},
-    year={2019},
-    eprint={1909.12229},
-    archivePrefix={arXiv},
-    primaryClass={cs.CL}
+@inproceedings{Swaminathan2020KeyphraseGF,
+  title={Keyphrase Generation for Scientific Articles Using GANs (Student Abstract)},
+  author={Avinash Swaminathan and Raj Kuwar Gupta and Haimin Zhang and Debanjan Mahata and Rakesh Gosangi and Rajiv Ratn Shah},
+  booktitle={AAAI},
+  year={2020}
 }
 ```
